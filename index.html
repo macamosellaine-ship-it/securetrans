@@ -178,7 +178,96 @@ function persist(){localStorage.setItem('st_threshold',String(threshold))}
 function mapTransaction(r){return {id:r.transaction_code||r.id,_dbId:r.id,date:r.created_at?new Date(r.created_at).toISOString().slice(0,16).replace('T',' '):'',account:r.account_id,personName:r.person_name,paymentName:r.payment_name,method:r.payment_method||'',fingerprint:r.fingerprint_reference||'',location:r.transaction_location||'',amount:Number(r.amount),type:r.transaction_type||'Unspecified',risk:Number(r.risk_score)||0,status:r.status||'Under Review',reason:r.detection_reason||'',explanation:r.analysis_explanation||'',note:r.reviewer_note||'',actual:null,responseMs:0}}
 function mapAudit(r){return {id:r.id,time:r.created_at?new Date(r.created_at).toLocaleString():'',user:r.actor_username||'Unknown user',action:r.action,target_id:r.target_id||''}}
 
+
 async function loadSharedData() {
+  if (syncBusy) return;
+  syncBusy = true;
+
+  try {
+    const { data: authData, error: authError } =
+      await supabaseClient.auth.getUser();
+
+    if (authError || !authData.user) {
+      throw new Error("Your login session has expired. Please log in again.");
+    }
+
+    const { data: membership, error: memberError } =
+      await supabaseClient
+        .from("company_members")
+        .select("company_id, member_role")
+        .eq("user_id", authData.user.id)
+        .single();
+
+    if (memberError) throw memberError;
+
+    currentCompanyId = membership.company_id;
+
+    const [tr, au, members] = await Promise.all([
+      supabaseClient
+        .from("transactions")
+        .select("*")
+        .eq("company_id", currentCompanyId)
+        .order("created_at", { ascending: true }),
+
+      supabaseClient
+        .from("audit_logs")
+        .select("*")
+        .eq("company_id", currentCompanyId)
+        .order("created_at", { ascending: false })
+        .limit(100),
+
+      supabaseClient
+        .from("company_members")
+        .select("user_id, member_role")
+        .eq("company_id", currentCompanyId)
+    ]);
+
+    if (tr.error) throw tr.error;
+    if (au.error) throw au.error;
+    if (members.error) throw members.error;
+
+    const userIds = (members.data || []).map(m => m.user_id);
+
+    const { data: profiles, error: profilesError } =
+      await supabaseClient
+        .from("profiles")
+        .select("id, username, full_name, job_role, is_active")
+        .in("id", userIds);
+
+    if (profilesError) throw profilesError;
+
+    const profileMap = new Map(
+      (profiles || []).map(p => [p.id, p])
+    );
+
+    tx = (tr.data || []).map(mapTransaction);
+    audit = (au.data || []).map(mapAudit);
+
+    userDirectory = (members.data || []).map(m => {
+      const p = profileMap.get(m.user_id) || {};
+
+      return {
+        id: m.user_id,
+        username: p.username || "",
+        name: p.full_name || p.username || "",
+        role: p.job_role || m.member_role,
+        accessLevel: m.member_role,
+        status: p.is_active === false ? "Inactive" : "Active",
+        is_active: p.is_active !== false
+      };
+    });
+
+    renderAll();
+
+  } catch (error) {
+    console.error("Unable to load company data:", error);
+    alert("Unable to load company data: " + (error.message || "Unknown error"));
+
+  } finally {
+    syncBusy = false;
+  }
+}
+
   if (syncBusy) return;
 
   syncBusy = true;
