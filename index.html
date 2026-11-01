@@ -177,7 +177,89 @@ function load(){tx=[];audit=[];threshold=Number(localStorage.getItem('st_thresho
 function persist(){localStorage.setItem('st_threshold',String(threshold))}
 function mapTransaction(r){return {id:r.transaction_code||r.id,_dbId:r.id,date:r.created_at?new Date(r.created_at).toISOString().slice(0,16).replace('T',' '):'',account:r.account_id,personName:r.person_name,paymentName:r.payment_name,method:r.payment_method||'',fingerprint:r.fingerprint_reference||'',location:r.transaction_location||'',amount:Number(r.amount),type:r.transaction_type||'Unspecified',risk:Number(r.risk_score)||0,status:r.status||'Under Review',reason:r.detection_reason||'',explanation:r.analysis_explanation||'',note:r.reviewer_note||'',actual:null,responseMs:0}}
 function mapAudit(r){return {id:r.id,time:r.created_at?new Date(r.created_at).toLocaleString():'',user:r.actor_username||'Unknown user',action:r.action,target_id:r.target_id||''}}
-async function loadSharedData(){if(syncBusy)return;syncBusy=true;try{const {data:membership,error:memberError}=await supabaseClient.from('company_members').select('company_id,member_role').eq('user_id',(await supabaseClient.auth.getUser()).data.user.id).single();if(memberError)throw memberError;currentCompanyId=membership.company_id;const [tr,au,pr]=await Promise.all([supabaseClient.from('transactions').select('*').eq('company_id',currentCompanyId).order('created_at',{ascending:true}),supabaseClient.from('audit_logs').select('*').eq('company_id',currentCompanyId).order('created_at',{ascending:false}).limit(100),supabaseClient.from('company_members').select('member_role,profiles(username,full_name)').eq('company_id',currentCompanyId)]);if(tr.error)throw tr.error;if(au.error)throw au.error;if(pr.error)throw pr.error;tx=(tr.data||[]).map(mapTransaction);audit=(au.data||[]).map(mapAudit);userDirectory=(pr.data||[]).map(m=>({username:m.profiles?.username||'',name:m.profiles?.full_name||m.profiles?.username||'',role:m.member_role}));renderAll()}finally{syncBusy=false}}
+
+async function loadSharedData() {
+  if (syncBusy) return;
+
+  syncBusy = true;
+
+  try {
+    const { data: authData, error: authError } =
+      await supabaseClient.auth.getUser();
+
+    if (authError || !authData.user) {
+      throw authError || new Error("User session not found.");
+    }
+
+    const { data: membership, error: memberError } =
+      await supabaseClient
+        .from("company_members")
+        .select("company_id, member_role")
+        .eq("user_id", authData.user.id)
+        .single();
+
+    if (memberError) throw memberError;
+
+    currentCompanyId = membership.company_id;
+
+    const [tr, au, pr] = await Promise.all([
+      supabaseClient
+        .from("transactions")
+        .select("*")
+        .eq("company_id", currentCompanyId)
+        .order("created_at", { ascending: true }),
+
+      supabaseClient
+        .from("audit_logs")
+        .select("*")
+        .eq("company_id", currentCompanyId)
+        .order("created_at", { ascending: false })
+        .limit(100),
+
+      supabaseClient
+        .from("company_members")
+        .select(`
+          user_id,
+          member_role,
+          profiles (
+            id,
+            username,
+            full_name,
+            job_role,
+            is_active
+          )
+        `)
+        .eq("company_id", currentCompanyId)
+    ]);
+
+    if (tr.error) throw tr.error;
+    if (au.error) throw au.error;
+    if (pr.error) throw pr.error;
+
+    tx = (tr.data || []).map(mapTransaction);
+    audit = (au.data || []).map(mapAudit);
+
+    userDirectory = (pr.data || []).map(m => ({
+      id: m.user_id,
+      username: m.profiles?.username || "",
+      name: m.profiles?.full_name || m.profiles?.username || "",
+      role: m.profiles?.job_role || m.member_role,
+      accessLevel: m.member_role,
+      status: m.profiles?.is_active === false ? "Inactive" : "Active",
+      is_active: m.profiles?.is_active !== false
+    }));
+
+    renderAll();
+
+  } catch (error) {
+    console.error("Unable to load company data:", error);
+    alert("Unable to load company data. Please try again.");
+
+  } finally {
+    syncBusy = false;
+  }
+}
+
 async function log(action,targetType=null,targetId=null){try{const {error}=await supabaseClient.from('audit_logs').insert({company_id:currentCompanyId,actor_username:currentUser?.username||'Unknown',action,target_type:targetType,target_id:targetId,details:{message:action}});if(error)throw error;const {data,error:readError}=await supabaseClient.from('audit_logs').select('*').eq('company_id',currentCompanyId).order('created_at',{ascending:false}).limit(100);if(readError)throw readError;audit=(data||[]).map(mapAudit);if($('auditList'))$('auditList').innerHTML=audit.slice(0,6).map(a=>`<div class="risk-row"><span>${a.action} <span style="color:var(--muted)">· ${a.user}</span></span><small style="color:var(--muted)">${a.time}</small></div>`).join('')}catch(err){console.error('Audit log save failed:',err);toast('Action completed, but its audit entry could not be saved.')}}
 function toast(s){let t=$('toast');t.textContent=s;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
 async function login(e){e.preventDefault();const button=$('loginButton');button.disabled=true;button.textContent='Signing in…';$('loginError').textContent='';try{const {data,error}=await supabaseClient.functions.invoke('securetrans-auth',{body:{action:'login',username:$('loginUser').value.trim(),password:$('loginPass').value}});if(error)throw error;if(data?.error)throw new Error(data.error);if(!data?.session||!data?.user)throw new Error('The server returned an incomplete sign-in response.');const {error:sessionError}=await supabaseClient.auth.setSession({access_token:data.session.access_token,refresh_token:data.session.refresh_token});if(sessionError)throw sessionError;currentUser={username:data.user.username,name:data.user.full_name||data.user.username,role:data.user.access_level||'Staff',accessLevel:data.user.access_level};await showApp();await log('Signed in','session',null)}catch(err){$('loginError').textContent=err.message||'Unable to sign in. Please try again.'}finally{button.disabled=false;button.textContent='Sign in securely →'}}
