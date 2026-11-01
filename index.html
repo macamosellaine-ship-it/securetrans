@@ -153,7 +153,7 @@ tr:hover td{background:#112b41}
 <section id="realtime" class="page hidden"><div class="page-head"><div><h1>Live transaction monitoring</h1><p>Simulated event stream to demonstrate near-real-time alert handling.</p></div><div class="actions"><span class="status s-success" id="streamState">Stream running</span><button class="btn" id="streamToggle" onclick="toggleStream()">Pause stream</button></div></div><div class="info">This page generates synthetic events in your browser at a short interval. It is not connected to a live banking feed.</div><div class="mini-grid" id="liveStats"></div><div class="panel" style="margin-top:15px"><div class="panel-head"><h3>Incoming event stream</h3><small id="lastEvent">Waiting for event…</small></div><div class="table-wrap"><table><thead><tr><th>Time received</th><th>Transaction</th><th>Account</th><th>Amount</th><th>Risk</th><th>Event</th></tr></thead><tbody id="liveRows"></tbody></table></div></div></section>
 <section id="evaluation" class="page hidden"><div class="page-head"><div><h1>Model evaluation</h1><p>Demonstration metrics calculated from a labelled synthetic test set.</p></div><button class="btn primary" onclick="runEvaluation()">↻ Run evaluation</button></div><div class="warning"><b>Research integrity note:</b> These are simulated test results for demonstrating metric calculations only. Replace them with results from a properly labelled dataset and documented train/test split before reporting research findings.</div><div class="metric-grid" id="metricGrid"></div><div class="grid2" style="margin-top:15px"><div class="panel"><div class="panel-head"><h3>Confusion matrix</h3><small>Predicted vs actual</small></div><table><thead><tr><th></th><th>Predicted anomaly</th><th>Predicted normal</th></tr></thead><tbody id="confusion"></tbody></table></div><div class="panel"><div class="panel-head"><h3>Evaluation methodology</h3></div><div class="risk-list"><div><b style="font-size:11px">Accuracy</b><p style="font-size:10px;color:var(--muted);margin:2px 0">Correct predictions divided by all predictions.</p></div><div><b style="font-size:11px">Precision</b><p style="font-size:10px;color:var(--muted);margin:2px 0">Of predicted anomalies, the proportion that are actual anomalies.</p></div><div><b style="font-size:11px">Recall</b><p style="font-size:10px;color:var(--muted);margin:2px 0">Of actual anomalies, the proportion detected by the model.</p></div><div><b style="font-size:11px">F1-score</b><p style="font-size:10px;color:var(--muted);margin:2px 0">Harmonic mean of precision and recall.</p></div><div><b style="font-size:11px">Response time</b><p style="font-size:10px;color:var(--muted);margin:2px 0">Elapsed time to score a transaction in the local demo.</p></div></div></div></div></section>
 <section id="reports" class="page hidden"><div class="page-head"><div><h1>Reports & data export</h1><p>Summaries for transaction review and research documentation.</p></div><div class="actions"><button class="btn" onclick="downloadAudit()">Export audit log</button><button class="btn" onclick="exportExcel()">Export Excel</button><button class="btn" onclick="printReport()">Save PDF / Print</button><button class="btn primary" onclick="downloadCSV()">↓ Export CSV</button></div></div><div class="panel" style="margin-bottom:14px"><div class="filters"><select id="reportPeriod" onchange="renderReports()"><option value="all">All time</option><option value="today">Today</option><option value="week">Last 7 days</option><option value="month">Last 30 days</option></select><input id="reportFrom" type="date" onchange="renderReports()"><input id="reportTo" type="date" onchange="renderReports()"></div><small style="color:var(--muted)" id="reportRangeNote">Report uses current stored demonstration data.</small></div><div class="stats" id="reportStats"></div><div class="grid2"><div class="panel"><div class="panel-head"><h3>Transaction status summary</h3></div><div id="statusSummary" class="risk-list"></div></div><div class="panel"><div class="panel-head"><h3>Risk level summary</h3></div><div id="riskSummary" class="risk-list"></div></div></div><div class="panel"><div class="panel-head"><h3>Suggested research measurements</h3></div><p style="font-size:11px;color:var(--muted)">Evaluate the prototype using a labelled test dataset. Report accuracy, precision, recall, F1-score, false-positive rate, false-negative rate, and average response time. Include dataset source, preprocessing, class balance, split method, threshold selection, and limitations. Do not describe synthetic demo metrics as validated model performance.</p></div></section>
-<section id="users" class="page hidden"><div class="page-head"><div><h1>Users & access roles</h1><p>Registered SecureTrans accounts and their assigned access.</p></div></div><div class="info">Manage accounts in your company workspace. Staff members can access company transactions but cannot manage users or system settings.</div><div class="panel"><div class="panel-head"><h3>Create Staff account</h3><small>Staff will be added to your company</small></div><form id="staffForm"><div class="form-grid"><div class="field"><label>Full name</label><input id="staffName" required maxlength="80" placeholder="Staff member full name"></div><div class="field"><label>Username</label><input id="staffUsername" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" placeholder="3–24 letters, numbers, or underscores"></div><div class="field"><label>Temporary password</label><input id="staffPassword" type="password" required minlength="8" placeholder="At least 8 characters"></div></div><button class="btn primary" id="staffButton" type="submit" style="margin-top:14px">＋ Create Staff account</button><div id="staffError" class="login-error" aria-live="polite"></div></form></div><div class="panel"><div class="panel-head"><h3>Company users</h3><small>Accounts in your workspace</small></div><div class="table-wrap"><table><thead><tr><th>Username</th><th>Name</th><th>Role</th></tr></thead><tbody id="userRows"></tbody></table></div></div><div class="panel hidden"><div class="panel-head"><h3>Legacy account reference</h3><small>Credentials are for local demonstration only</small></div><div class="table-wrap"><table><thead><tr><th>User</th><th>Role</th><th>Permissions</th><th>Account</th></tr></thead><tbody><tr><td><b>admin</b></td><td>Administrator</td><td>All pages, review decisions, settings, exports</td><td><span class="status s-success">Active demo</span></td></tr><tr><td><b>analyst</b></td><td>Analyst</td><td>Dashboard, transactions, detection, cases, simulator, evaluation, reports</td><td><span class="status s-success">Active demo</span></td></tr></tbody></table></div></div><div class="panel" style="margin-top:14px"><div class="panel-head"><h3>Current session</h3></div><div class="settings-row"><div><b id="currentName">Administrator</b><p id="currentRole">Signed in as admin</p></div><button class="btn danger" onclick="logout()">Sign out</button></div></div></section>
+<section id="users" class="page hidden"><div class="page-head"><div><h1>Users & access roles</h1><p>Registered SecureTrans accounts and their assigned access.</p></div></div><div class="info">Accounts are created through SecureTrans registration and stored in Supabase. All registered accounts currently receive Administrator access, as configured.</div><div class="panel"><div class="panel-head"><h3>Registered users</h3><small>Shared Supabase account directory</small></div><div class="table-wrap"><table><thead><tr><th>Username</th><th>Name</th><th>Role</th></tr></thead><tbody id="userRows"></tbody></table></div></div><div class="panel hidden"><div class="panel-head"><h3>Legacy account reference</h3><small>Credentials are for local demonstration only</small></div><div class="table-wrap"><table><thead><tr><th>User</th><th>Role</th><th>Permissions</th><th>Account</th></tr></thead><tbody><tr><td><b>admin</b></td><td>Administrator</td><td>All pages, review decisions, settings, exports</td><td><span class="status s-success">Active demo</span></td></tr><tr><td><b>analyst</b></td><td>Analyst</td><td>Dashboard, transactions, detection, cases, simulator, evaluation, reports</td><td><span class="status s-success">Active demo</span></td></tr></tbody></table></div></div><div class="panel" style="margin-top:14px"><div class="panel-head"><h3>Current session</h3></div><div class="settings-row"><div><b id="currentName">Administrator</b><p id="currentRole">Signed in as admin</p></div><button class="btn danger" onclick="logout()">Sign out</button></div></div></section>
 <section id="settings" class="page hidden"><div class="page-head"><div><h1>System settings</h1><p>Configure demonstration thresholds and prototype data controls.</p></div></div><div class="panel"><div class="panel-head"><h3>Anomaly detection settings</h3><small>Illustrative rules</small></div><div class="settings-row"><div><b>High-value threshold (PHP)</b><p>Transactions at or above this amount receive a high-value indicator.</p></div><input id="threshold" type="number" min="1000" value="50000" style="width:145px;padding:9px;border:1px solid var(--line);border-radius:8px"></div><div class="settings-row"><div><b>Rapid-activity indicator</b><p>Uses the selected rapid-activity test scenario.</p></div><span class="status s-success">Enabled</span></div><div class="settings-row"><div><b>Manual review for high risk</b><p>High-risk transactions are held for an authorized decision.</p></div><span class="status s-success">Enabled</span></div><div style="margin-top:14px"><button class="btn primary" onclick="saveSettings()">Save configuration</button></div></div><div class="panel" style="margin-top:14px"><div class="panel-head"><h3>Local database controls</h3><small>Browser storage</small></div><p style="font-size:11px;color:var(--muted)">Transactions and audit events are saved in this browser using local storage, so they remain after refreshing this page on the same browser profile. This is not a shared server database or a secure production database.</p><div class="actions"><button class="btn" onclick="exportBackup()">Export local backup</button><button class="btn danger" onclick="clearLocalData()">Clear saved demo data</button></div></div><div class="warning" style="margin-top:14px"><b>Before real deployment:</b> use a server-side database, HTTPS, password hashing, secure session management, role checks on the server, encryption at rest, backups, audit-log protection, and a security review. Never store real passwords or sensitive financial records in browser local storage.</div></section>
 </div></main></div><div id="detailOverlay" class="modal-overlay hidden" onclick="if(event.target===this)closeDetails()"><div class="modal-card"><div class="panel-head"><h3>Transaction details</h3><button class="btn small" onclick="closeDetails()">✕ Close</button></div><div id="detailBody"></div></div></div><div class="toast" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -172,194 +172,21 @@ const seed=[
 {id:'ST-24007',date:'2026-11-01 09:49',account:'ACC-1020',location:'Baguio City',amount:1800,type:'Bill Payment',risk:6,status:'Successful',reason:'No configured anomaly indicator',actual:0},
 {id:'ST-24008',date:'2026-11-01 10:05',account:'ACC-1052',location:'Davao City',amount:120000,type:'Fund Transfer',risk:95,status:'Blocked',reason:'High-value + unusual activity',actual:1}
 ];
-let tx=[],audit=[],threshold=50000,currentUser=null,currentCompanyId=null,streamTimer=null,streamOn=true,liveEvents=[],syncTimer=null,syncBusy=false,userDirectory=[];
+let tx=[],audit=[],threshold=50000,currentUser=null,streamTimer=null,streamOn=true,liveEvents=[],syncTimer=null,syncBusy=false,userDirectory=[];
 function load(){tx=[];audit=[];threshold=Number(localStorage.getItem('st_threshold'))||50000}
 function persist(){localStorage.setItem('st_threshold',String(threshold))}
 function mapTransaction(r){return {id:r.transaction_code||r.id,_dbId:r.id,date:r.created_at?new Date(r.created_at).toISOString().slice(0,16).replace('T',' '):'',account:r.account_id,personName:r.person_name,paymentName:r.payment_name,method:r.payment_method||'',fingerprint:r.fingerprint_reference||'',location:r.transaction_location||'',amount:Number(r.amount),type:r.transaction_type||'Unspecified',risk:Number(r.risk_score)||0,status:r.status||'Under Review',reason:r.detection_reason||'',explanation:r.analysis_explanation||'',note:r.reviewer_note||'',actual:null,responseMs:0}}
 function mapAudit(r){return {id:r.id,time:r.created_at?new Date(r.created_at).toLocaleString():'',user:r.actor_username||'Unknown user',action:r.action,target_id:r.target_id||''}}
-
-
-async function loadSharedData() {
-  if (syncBusy) return;
-  syncBusy = true;
-
-  try {
-    const { data: authData, error: authError } =
-      await supabaseClient.auth.getUser();
-
-    if (authError || !authData.user) {
-      throw new Error("Your login session has expired. Please log in again.");
-    }
-
-    const { data: membership, error: memberError } =
-      await supabaseClient
-        .from("company_members")
-        .select("company_id, member_role")
-        .eq("user_id", authData.user.id)
-        .single();
-
-    if (memberError) throw memberError;
-
-    currentCompanyId = membership.company_id;
-
-    const [tr, au, members] = await Promise.all([
-      supabaseClient
-        .from("transactions")
-        .select("*")
-        .eq("company_id", currentCompanyId)
-        .order("created_at", { ascending: true }),
-
-      supabaseClient
-        .from("audit_logs")
-        .select("*")
-        .eq("company_id", currentCompanyId)
-        .order("created_at", { ascending: false })
-        .limit(100),
-
-      supabaseClient
-        .from("company_members")
-        .select("user_id, member_role")
-        .eq("company_id", currentCompanyId)
-    ]);
-
-    if (tr.error) throw tr.error;
-    if (au.error) throw au.error;
-    if (members.error) throw members.error;
-
-    const userIds = (members.data || []).map(m => m.user_id);
-
-    const { data: profiles, error: profilesError } =
-      await supabaseClient
-        .from("profiles")
-        .select("id, username, full_name, job_role, is_active")
-        .in("id", userIds);
-
-    if (profilesError) throw profilesError;
-
-    const profileMap = new Map(
-      (profiles || []).map(p => [p.id, p])
-    );
-
-    tx = (tr.data || []).map(mapTransaction);
-    audit = (au.data || []).map(mapAudit);
-
-    userDirectory = (members.data || []).map(m => {
-      const p = profileMap.get(m.user_id) || {};
-
-      return {
-        id: m.user_id,
-        username: p.username || "",
-        name: p.full_name || p.username || "",
-        role: p.job_role || m.member_role,
-        accessLevel: m.member_role,
-        status: p.is_active === false ? "Inactive" : "Active",
-        is_active: p.is_active !== false
-      };
-    });
-
-    renderAll();
-
-  } catch (error) {
-    console.error("Unable to load company data:", error);
-    alert("Unable to load company data: " + (error.message || "Unknown error"));
-
-  } finally {
-    syncBusy = false;
-  }
-}
-
-  if (syncBusy) return;
-
-  syncBusy = true;
-
-  try {
-    const { data: authData, error: authError } =
-      await supabaseClient.auth.getUser();
-
-    if (authError || !authData.user) {
-      throw authError || new Error("User session not found.");
-    }
-
-    const { data: membership, error: memberError } =
-      await supabaseClient
-        .from("company_members")
-        .select("company_id, member_role")
-        .eq("user_id", authData.user.id)
-        .single();
-
-    if (memberError) throw memberError;
-
-    currentCompanyId = membership.company_id;
-
-    const [tr, au, pr] = await Promise.all([
-      supabaseClient
-        .from("transactions")
-        .select("*")
-        .eq("company_id", currentCompanyId)
-        .order("created_at", { ascending: true }),
-
-      supabaseClient
-        .from("audit_logs")
-        .select("*")
-        .eq("company_id", currentCompanyId)
-        .order("created_at", { ascending: false })
-        .limit(100),
-
-      supabaseClient
-        .from("company_members")
-        .select(`
-          user_id,
-          member_role,
-          profiles (
-            id,
-            username,
-            full_name,
-            job_role,
-            is_active
-          )
-        `)
-        .eq("company_id", currentCompanyId)
-    ]);
-
-    if (tr.error) throw tr.error;
-    if (au.error) throw au.error;
-    if (pr.error) throw pr.error;
-
-    tx = (tr.data || []).map(mapTransaction);
-    audit = (au.data || []).map(mapAudit);
-
-    userDirectory = (pr.data || []).map(m => ({
-      id: m.user_id,
-      username: m.profiles?.username || "",
-      name: m.profiles?.full_name || m.profiles?.username || "",
-      role: m.profiles?.job_role || m.member_role,
-      accessLevel: m.member_role,
-      status: m.profiles?.is_active === false ? "Inactive" : "Active",
-      is_active: m.profiles?.is_active !== false
-    }));
-
-    renderAll();
-
-  } catch (error) {
-    console.error("Unable to load company data:", error);
-    alert("Unable to load company data. Please try again.");
-
-  } finally {
-    syncBusy = false;
-  }
-}
-
-async function log(action,targetType=null,targetId=null){try{const {error}=await supabaseClient.from('audit_logs').insert({company_id:currentCompanyId,actor_username:currentUser?.username||'Unknown',action,target_type:targetType,target_id:targetId,details:{message:action}});if(error)throw error;const {data,error:readError}=await supabaseClient.from('audit_logs').select('*').eq('company_id',currentCompanyId).order('created_at',{ascending:false}).limit(100);if(readError)throw readError;audit=(data||[]).map(mapAudit);if($('auditList'))$('auditList').innerHTML=audit.slice(0,6).map(a=>`<div class="risk-row"><span>${a.action} <span style="color:var(--muted)">· ${a.user}</span></span><small style="color:var(--muted)">${a.time}</small></div>`).join('')}catch(err){console.error('Audit log save failed:',err);toast('Action completed, but its audit entry could not be saved.')}}
+async function loadSharedData(){if(syncBusy)return;syncBusy=true;try{const [tr,au,pr]=await Promise.all([supabaseClient.from('transactions').select('*').order('created_at',{ascending:true}),supabaseClient.from('audit_logs').select('*').order('created_at',{ascending:false}).limit(100),supabaseClient.from('profiles').select('username,full_name,access_level').order('created_at',{ascending:true})]);if(tr.error)throw tr.error;if(au.error)throw au.error;if(pr.error)throw pr.error;tx=(tr.data||[]).map(mapTransaction);audit=(au.data||[]).map(mapAudit);userDirectory=(pr.data||[]).map(u=>({username:u.username,name:u.full_name||u.username,role:u.access_level||'Administrator'}));renderAll()}finally{syncBusy=false}}
+async function log(action,targetType=null,targetId=null){try{const {error}=await supabaseClient.from('audit_logs').insert({actor_username:currentUser?.username||'Unknown',action,target_type:targetType,target_id:targetId,details:{message:action}});if(error)throw error;const {data,error:readError}=await supabaseClient.from('audit_logs').select('*').order('created_at',{ascending:false}).limit(100);if(readError)throw readError;audit=(data||[]).map(mapAudit);if($('auditList'))$('auditList').innerHTML=audit.slice(0,6).map(a=>`<div class="risk-row"><span>${a.action} <span style="color:var(--muted)">· ${a.user}</span></span><small style="color:var(--muted)">${a.time}</small></div>`).join('')}catch(err){console.error('Audit log save failed:',err);toast('Action completed, but its audit entry could not be saved.')}}
 function toast(s){let t=$('toast');t.textContent=s;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
-async function login(e){e.preventDefault();const button=$('loginButton');button.disabled=true;button.textContent='Signing in…';$('loginError').textContent='';try{const {data,error}=await supabaseClient.functions.invoke('securetrans-auth',{body:{action:'login',username:$('loginUser').value.trim(),password:$('loginPass').value}});if(error)throw error;if(data?.error)throw new Error(data.error);if(!data?.session||!data?.user)throw new Error('The server returned an incomplete sign-in response.');const {error:sessionError}=await supabaseClient.auth.setSession({access_token:data.session.access_token,refresh_token:data.session.refresh_token});if(sessionError)throw sessionError;currentUser={username:data.user.username,name:data.user.full_name||data.user.username,role:data.user.access_level||'Staff',accessLevel:data.user.access_level};await showApp();await log('Signed in','session',null)}catch(err){$('loginError').textContent=err.message||'Unable to sign in. Please try again.'}finally{button.disabled=false;button.textContent='Sign in securely →'}}
-async function register(e){e.preventDefault();const button=$('signupButton');button.disabled=true;button.textContent='Creating account…';$('signupError').textContent='';try{const {data,error}=await supabaseClient.functions.invoke('securetrans-auth',{body:{action:'signup',username:$('signupUser').value.trim(),password:$('signupPass').value,full_name:$('signupName').value.trim()}});if(error)throw error;if(data?.error)throw new Error(data.error);if(!data?.session||!data?.user)throw new Error('The server returned an incomplete registration response.');const {error:sessionError}=await supabaseClient.auth.setSession({access_token:data.session.access_token,refresh_token:data.session.refresh_token});if(sessionError)throw sessionError;currentUser={username:data.user.username,name:data.user.full_name||data.user.username,role:data.user.access_level||'Administrator',accessLevel:data.user.access_level};$('signupForm').reset();await showApp();await log('Account registered and signed in','session',null)}catch(err){$('signupError').textContent=err.message||'Unable to create account. Please try again.'}finally{button.disabled=false;button.textContent='Create account →'}}
+async function login(e){e.preventDefault();const button=$('loginButton');button.disabled=true;button.textContent='Signing in…';$('loginError').textContent='';try{const {data,error}=await supabaseClient.functions.invoke('securetrans-auth',{body:{action:'login',username:$('loginUser').value.trim(),password:$('loginPass').value}});if(error)throw error;if(data?.error)throw new Error(data.error);if(!data?.session||!data?.user)throw new Error('The server returned an incomplete sign-in response.');const {error:sessionError}=await supabaseClient.auth.setSession({access_token:data.session.access_token,refresh_token:data.session.refresh_token});if(sessionError)throw sessionError;currentUser={username:data.user.username,name:data.user.full_name||data.user.username,role:'Administrator',accessLevel:data.user.access_level};await showApp();await log('Signed in','session',null)}catch(err){$('loginError').textContent=err.message||'Unable to sign in. Please try again.'}finally{button.disabled=false;button.textContent='Sign in securely →'}}
+async function register(e){e.preventDefault();const button=$('signupButton');button.disabled=true;button.textContent='Creating account…';$('signupError').textContent='';try{const {data,error}=await supabaseClient.functions.invoke('securetrans-auth',{body:{action:'signup',username:$('signupUser').value.trim(),password:$('signupPass').value,full_name:$('signupName').value.trim()}});if(error)throw error;if(data?.error)throw new Error(data.error);if(!data?.session||!data?.user)throw new Error('The server returned an incomplete registration response.');const {error:sessionError}=await supabaseClient.auth.setSession({access_token:data.session.access_token,refresh_token:data.session.refresh_token});if(sessionError)throw sessionError;currentUser={username:data.user.username,name:data.user.full_name||data.user.username,role:'Administrator',accessLevel:data.user.access_level};$('signupForm').reset();await showApp();await log('Account registered and signed in','session',null)}catch(err){$('signupError').textContent=err.message||'Unable to create account. Please try again.'}finally{button.disabled=false;button.textContent='Create account →'}}
 function switchAuth(e){e.preventDefault();const loginVisible=!$('loginForm').classList.contains('hidden');$('loginForm').classList.toggle('hidden',loginVisible);$('signupForm').classList.toggle('hidden',!loginVisible);$('authSwitchText').textContent=loginVisible?'Already have an account?':'New to SecureTrans?';$('authSwitch').textContent=loginVisible?'Sign in':'Create an account';$('loginError').textContent='';$('signupError').textContent=''}
 async function showApp(){ $('loginScreen').classList.add('hidden');$('app').classList.remove('hidden');$('sideName').textContent=currentUser.name;$('sideRole').textContent=currentUser.role;$('topUser').textContent=currentUser.name;$('avatar').textContent=currentUser.username.slice(0,2).toUpperCase();$('topAvatar').textContent=$('avatar').textContent;$('currentName').textContent=currentUser.name;$('currentRole').textContent='Signed in as '+currentUser.username;applyRole();try{await loadSharedData()}catch(err){console.error('Shared data load failed:',err);toast('Could not load shared records. Check your Supabase policies.')}go('dashboard');startStream();if(syncTimer)clearInterval(syncTimer);syncTimer=setInterval(()=>{if(currentUser)loadSharedData().catch(err=>console.error('Shared refresh failed:',err))},15000)}
 function applyRole(){let admin=currentUser.role==='Administrator';document.querySelector('[data-page="users"]').classList.toggle('hidden',!admin);document.querySelector('[data-page="settings"]').classList.toggle('hidden',!admin)}
 async function logout(){if(currentUser)await log('Signed out','session',null);await supabaseClient.auth.signOut();currentUser=null;stopStream();if(syncTimer)clearInterval(syncTimer);syncTimer=null;$('app').classList.add('hidden');$('loginScreen').classList.remove('hidden');$('loginPass').value=''}
 $('loginForm').addEventListener('submit',login);$('signupForm').addEventListener('submit',register);$('authSwitch').addEventListener('click',switchAuth);
-$('staffForm').addEventListener('submit',createStaff);
-async function createStaff(e){e.preventDefault();const button=$('staffButton');button.disabled=true;button.textContent='Creating Staff account…';$('staffError').textContent='';try{const {data,error}=await supabaseClient.functions.invoke('securetrans-auth',{body:{action:'create_staff',username:$('staffUsername').value.trim(),password:$('staffPassword').value,full_name:$('staffName').value.trim()}});if(error)throw error;if(data?.error)throw new Error(data.error);$('staffForm').reset();await loadSharedData();toast('Staff account created successfully.');}catch(err){$('staffError').textContent=err.message||'Unable to create Staff account.';}finally{button.disabled=false;button.textContent='＋ Create Staff account';}}
 function go(page){document.querySelectorAll('.page').forEach(x=>x.classList.add('hidden'));$(page).classList.remove('hidden');document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));let names={dashboard:'Dashboard',transactions:'Transactions',detection:'Anomaly detection',cases:'Fraud review center',simulator:'Transaction simulator',realtime:'Live monitoring',evaluation:'Model evaluation',reports:'Reports & export',users:'Users & access',settings:'System settings'};$('crumb').textContent=names[page];$('sidebar').classList.remove('open');renderAll();if(page==='evaluation')runEvaluation()}
 document.querySelectorAll('#nav button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));$('menuBtn').onclick=()=>$('sidebar').classList.toggle('open');
 function badge(s){let c=s==='Successful'?'s-success':s==='Flagged'?'s-flagged':s==='Blocked'?'s-blocked':s==='Pending'?'s-pending':s==='Rejected'?'s-blocked':'s-review';return `<span class="status ${c}">${s}</span>`}
@@ -374,7 +201,7 @@ function details(id){let t=tx.find(x=>x.id===id);if(!t)return;let fields=[['Tran
 async function decide(id,status){if(currentUser.role!=='Administrator'&&currentUser.role!=='Analyst'){toast('Not authorized');return}let t=tx.find(x=>x.id===id);if(!t)return;let reason=(t.reason||'')+' · '+(status==='Successful'?'Approved after review':status==='Rejected'?'Rejected after review':status==='Blocked'?'Blocked by reviewer':'Updated after review');const {error}=await supabaseClient.from('transactions').update({status,detection_reason:reason,reviewer_note:t.note||null,updated_at:new Date().toISOString()}).eq('id',t._dbId);if(error){console.error(error);toast('Unable to save review decision: '+error.message);return}t.status=status;t.reason=reason;await log(`${id}: reviewer decision = ${status}`,'transaction',t._dbId);renderAll();toast('Review decision saved for all users')}
 function accountStats(account){let hist=tx.filter(t=>t.account===account).map(t=>t.amount);if(hist.length<2)return {mean:0,sd:0};let mean=hist.reduce((a,b)=>a+b,0)/hist.length;let sd=Math.sqrt(hist.reduce((a,b)=>a+(b-mean)**2,0)/hist.length);return {mean,sd}}
 function scoreTransaction(amount,account,pattern,location=''){let reasons=[],score=5,parts=[];if(amount>=threshold){score+=50;reasons.push('High-value transaction');parts.push('Amount meets configured high-value threshold')}if(pattern==='rapid'){score+=35;reasons.push('Rapid repeated activity');parts.push('Test scenario indicates 3+ transactions in 10 minutes')}if(pattern==='unusual'){score+=35;reasons.push('Unusual activity pattern');parts.push('Test scenario indicates activity outside the account’s usual pattern')}if(pattern==='location'){score+=35;reasons.push('Unusual transaction location');parts.push('Test scenario indicates a location outside the account’s usual pattern')}let knownLocations=tx.filter(t=>t.account===account&&t.location).map(t=>t.location.toLowerCase());if(location&&knownLocations.length&&!knownLocations.includes(location.toLowerCase())&&pattern!=='location'){score+=30;reasons.push('Location differs from account history');parts.push('Transaction location differs from the locations previously recorded for this account')}if(pattern==='frequency'){score+=35;reasons.push('Unusual transaction frequency');parts.push('Test scenario indicates unusually frequent transactions in a short period')}let st=accountStats(account);if(st.sd>0&&amount>st.mean+2*st.sd){score+=20;reasons.push('Amount deviation from account history');parts.push('Amount is more than two standard deviations above the stored account mean')}score=Math.min(99,score);return {score,reasons,explanation:parts.length?parts.join('; '):'No configured anomaly indicator was triggered.'}}
-async function addTransaction({account,amount,type,pattern='normal',note='',location='',personName='',paymentName='',method='',fingerprint='',saveToCloud=true}){let start=performance.now(),sc=scoreTransaction(amount,account,pattern,location);let recentSame=tx.filter(x=>x.account===account&&Date.now()-new Date(x.date).getTime()<=10*60*1000).length;if(recentSame>=2&&pattern!=='rapid'&&pattern!=='frequency'){sc.score=Math.min(99,sc.score+25);sc.reasons.push('High transaction frequency');sc.explanation+='; Three or more transactions for this account were recorded within ten minutes'}let elapsed=performance.now()-start;let status=sc.score>=61?'Under Review':sc.score>=31?'Flagged':'Successful';let id='ST-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,6).toUpperCase();let t={id,date:new Date().toISOString().slice(0,16).replace('T',' '),account,personName,paymentName,method,fingerprint,location,amount,type,risk:sc.score,status,reason:sc.reasons.join(' + ')||'No configured anomaly indicator',explanation:sc.explanation,note,actual:null,responseMs:elapsed};if(!saveToCloud)return t;const {data,error}=await supabaseClient.from('transactions').insert({transaction_code:id,account_id:account,person_name:personName,amount,payment_name:paymentName,payment_method:method||null,fingerprint_reference:fingerprint||null,transaction_type:type,company_id:currentCompanyId,created_by:(await supabaseClient.auth.getUser()).data.user.id,activity_pattern:pattern,transaction_location:location||null,risk_score:sc.score,status,detection_reason:t.reason,analysis_explanation:sc.explanation,reviewer_note:note||null}).select('*').single();if(error)throw error;const saved=mapTransaction(data);saved.responseMs=elapsed;tx.push(saved);await log(`Transaction ${id} analyzed: ${status}, risk ${sc.score}/100`,'transaction',data.id);return saved}
+async function addTransaction({account,amount,type,pattern='normal',note='',location='',personName='',paymentName='',method='',fingerprint='',saveToCloud=true}){let start=performance.now(),sc=scoreTransaction(amount,account,pattern,location);let recentSame=tx.filter(x=>x.account===account&&Date.now()-new Date(x.date).getTime()<=10*60*1000).length;if(recentSame>=2&&pattern!=='rapid'&&pattern!=='frequency'){sc.score=Math.min(99,sc.score+25);sc.reasons.push('High transaction frequency');sc.explanation+='; Three or more transactions for this account were recorded within ten minutes'}let elapsed=performance.now()-start;let status=sc.score>=61?'Under Review':sc.score>=31?'Flagged':'Successful';let id='ST-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,6).toUpperCase();let t={id,date:new Date().toISOString().slice(0,16).replace('T',' '),account,personName,paymentName,method,fingerprint,location,amount,type,risk:sc.score,status,reason:sc.reasons.join(' + ')||'No configured anomaly indicator',explanation:sc.explanation,note,actual:null,responseMs:elapsed};if(!saveToCloud)return t;const {data,error}=await supabaseClient.from('transactions').insert({transaction_code:id,account_id:account,person_name:personName,amount,payment_name:paymentName,payment_method:method||null,fingerprint_reference:fingerprint||null,transaction_type:type,activity_pattern:pattern,transaction_location:location||null,risk_score:sc.score,status,detection_reason:t.reason,analysis_explanation:sc.explanation,reviewer_note:note||null}).select('*').single();if(error)throw error;const saved=mapTransaction(data);saved.responseMs=elapsed;tx.push(saved);await log(`Transaction ${id} analyzed: ${status}, risk ${sc.score}/100`,'transaction',data.id);return saved}
 $('simForm').addEventListener('submit',async e=>{e.preventDefault();let account=$('account').value.trim().toUpperCase(),amount=Number($('amount').value);if(!account||!Number.isFinite(amount)||amount<=0)return;let personName=$('personName').value.trim(),paymentName=$('paymentName').value.trim();if(!personName||!paymentName){toast('Enter the account holder name and payment name');return}let t;try{t=await addTransaction({account,amount,type:$('type').value,pattern:$('pattern').value,note:$('note').value,location:$('location').value.trim(),personName,paymentName,method:$('method').value,fingerprint:$('fingerprint').value.trim()})}catch(err){console.error(err);toast('Could not save transaction: '+err.message);return}let result=$('simResult');result.classList.remove('hidden');let colour=t.risk>=61?'#b42318':t.risk>=31?'#9a5b00':'#087e5d';result.innerHTML=`<div style="display:flex;justify-content:space-between;gap:10px"><div><small style="color:var(--muted)">ANALYSIS RESULT · ${t.id}</small><div class="score" style="color:${colour}">${t.risk}<span style="font-size:12px;color:var(--muted)"> / 100 risk score</span></div></div>${badge(t.status)}</div><div class="meter"><div style="width:${t.risk}%"></div></div><b style="font-size:11px">Why this was scored</b><p style="font-size:11px">${t.explanation}</p><small style="color:var(--muted)">Scoring time: ${t.responseMs.toFixed(2)} ms · ${t.status==='Successful'?'No configured rule triggered.': 'Human review is required; this score is not proof of fraud.'}</small><div class="result-actions"><button class="btn" onclick="go('transactions')">View transaction</button>${t.risk>30?'<button class="btn dark" onclick="go(\'cases\')">Open review center</button>':''}</div>`;renderAll();toast('Transaction analyzed and stored')});
 function saveSettings(){let n=Number($('threshold').value);if(!n||n<1000){toast('Enter a threshold of at least ₱1,000');return}threshold=n;persist();log('Detection threshold updated','settings',null);renderAll();toast('Threshold saved on this browser')}
 function downloadFile(name,content,type='text/csv'){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
@@ -393,7 +220,7 @@ function renderLive(){if(!$('liveRows'))return;$('liveStats').innerHTML=[['Event
 function startStream(){stopStream();streamOn=true;streamTimer=setInterval(async()=>{if(!streamOn||!currentUser)return;let amount=[800,1200,2400,5600,18000,72000][Math.floor(Math.random()*6)],account='ACC-'+(1000+Math.floor(Math.random()*9)),pattern=Math.random()<.18?'rapid':'normal';let t=await addTransaction({account,amount,type:['Fund Transfer','Online Purchase','Bill Payment'][Math.floor(Math.random()*3)],pattern,saveToCloud:false});pushLive(t);},9000)}
 function stopStream(){if(streamTimer)clearInterval(streamTimer);streamTimer=null}
 function toggleStream(){streamOn=!streamOn;$('streamToggle').textContent=streamOn?'Pause stream':'Resume stream';$('streamState').textContent=streamOn?'Stream running':'Stream paused';$('streamState').className='status '+(streamOn?'s-success':'s-review')}
-async function init(){load();$('threshold').value=threshold;try{const {data,error}=await supabaseClient.auth.getSession();if(error)throw error;const session=data.session;if(session){const meta=session.user.user_metadata||{};const username=meta.username||String(session.user.email||'').split('@')[0];const {data:profile,error:profileError}=await supabaseClient.from('profiles').select('username,full_name,access_level').eq('id',session.user.id).single();if(profileError||!profile)throw profileError||new Error('Account profile could not be found.');currentUser={username:profile.username||username,name:profile.full_name||meta.full_name||username,role:profile.access_level||'Staff',accessLevel:profile.access_level||'Staff'};await showApp()}}catch(err){console.error('Session restore failed:',err)}}
+async function init(){load();$('threshold').value=threshold;try{const {data,error}=await supabaseClient.auth.getSession();if(error)throw error;const session=data.session;if(session){const meta=session.user.user_metadata||{};const username=meta.username||String(session.user.email||'').split('@')[0];currentUser={username,name:meta.full_name||username,role:'Administrator',accessLevel:'Administrator'};await showApp()}}catch(err){console.error('Session restore failed:',err)}}
 init();
 </script>
 </body></html>
